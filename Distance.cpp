@@ -52,6 +52,7 @@ int main() {
 		i2++;
 	}
 	X.pop_back();
+	real_value.close();
 
 
 	//opening and reading the file with the observations
@@ -66,7 +67,47 @@ int main() {
 		i3++;
 	}
 	Z.pop_back();
+	real_obs.close();
 
+	//this code create the distances (signed) for each missing point between the value of the particle and the real data
+
+	//calculate how many missing points we have
+	int missing = 0;
+	for (int i = 0; i < Z.size(); i++) {
+		if (Z[i] == 0) { missing = missing + 1; }
+	}
+	//cout << "missing " << missing << endl;
+
+	vector < vector < double > > dist;
+	for (int j = 0; j < 1000; j++) {
+		vector < double > v_dist;
+		double t_dist = 0;
+		for (int i = 0; i < 30; i++) {
+			if (Z[i] == 0) {
+				t_dist = (resampled[j][i] - X[i]);
+				v_dist.push_back(t_dist);
+			}
+		}
+	dist.push_back(v_dist);
+	}
+
+	//output the file with the distances
+	ofstream outFile("./dist_m0095.csv");
+	outFile << endl;
+	for (int i = 0; i < 1000; i++) {
+		for (int j = 0; j < missing; j++) {
+			outFile << dist[i][j] << ",";
+		}
+		outFile << endl;
+	}
+	outFile.close();
+
+
+	/*
+	for (const vector < double > v : dist) {
+		for (double x : v) cout << x << ' ';
+		cout << endl;
+	}*/
 
 
 
