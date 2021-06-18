@@ -6,11 +6,17 @@
 #include <sstream>
 #include <algorithm>
 #include <math.h>
+#include "numeric"
 
 using namespace std;
 
 
 int main() {
+
+	//number of particles used
+	int n = 1000;
+	//number of times
+	int N = 30;
 
 	//opening and reading the file with the resampled values
 	ifstream res;
@@ -28,13 +34,13 @@ int main() {
 			start1 = end1 + 1;
 		} while (start1);
 	}
-	vector < vector < double > > resampled(1000, vector < double >(31, 0.0));
-	for (int i = 0; i < 1000; i++) {
-		for (int j = 0; j < 31; j++) {
-			resampled[i][j] = line_resampled[j + 31 * i];
+	vector < vector < double > > resampled(n, vector < double >(31, 0.0));
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < N + 1; j++) {
+			resampled[i][j] = line_resampled[j + (N + 1) * i];
 		}
 	}
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < n; i++) {
 		resampled[i].pop_back();
 	}
 	res.close();
@@ -79,37 +85,36 @@ int main() {
 	//cout << "missing " << missing << endl;
 
 	vector < vector < double > > dist;
-	for (int j = 0; j < 1000; j++) {
+	for (int j = 0; j < n; j++) {
 		vector < double > v_dist;
 		double t_dist = 0;
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < N; i++) {
 			if (Z[i] == 0) {
-				t_dist = (resampled[j][i] - X[i]);
+				t_dist = pow((resampled[j][i] - X[i]), 2);
 				v_dist.push_back(t_dist);
 			}
 		}
 	dist.push_back(v_dist);
 	}
+	vector < double > v_dist;
+	for (int j = 0; j < missing; j++) {
+		double sum_of_dist = dist[0][j];
+		for (int i = 1; i < n; i++) {
+			sum_of_dist = sum_of_dist + dist[i - 1][j];
+		}
+		double normalised = sum_of_dist / n;
+		v_dist.push_back(normalised);
+	}
+
+
 
 	//output the file with the distances
-	ofstream outFile("./dist_m0095.csv");
+	ofstream outFile("./v_dist_m0095.csv");
 	outFile << endl;
-	for (int i = 0; i < 1000; i++) {
-		for (int j = 0; j < missing; j++) {
-			outFile << dist[i][j] << ",";
+	for (double i : v_dist) {
+			outFile << i << endl;
 		}
-		outFile << endl;
-	}
 	outFile.close();
-
-
-	/*
-	for (const vector < double > v : dist) {
-		for (double x : v) cout << x << ' ';
-		cout << endl;
-	}*/
-
-
 
 
 

@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Project2/dist_m0095.csv
+/Project2/v_dist_m0095.csv
